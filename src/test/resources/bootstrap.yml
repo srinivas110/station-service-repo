@@ -1,0 +1,3 @@
+microservice.contextPath: '/api/v1/station-service'
+server:
+  port: 8082
