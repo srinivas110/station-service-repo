@@ -4,6 +4,11 @@ package com.station.service;
 import com.station.domain.Station;
 import com.station.domain.StationEntity;
 import com.station.persist.StationRepository;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -13,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Slf4j
 public class StationService {
 
     @Autowired
@@ -40,7 +46,18 @@ public class StationService {
     }
 
     public Station searchStationById(String id) {
-        return getStationDetails(stationRepository.findOne(id));
+        Observable<Station> stationObservable=
+                Observable.create(new ObservableOnSubscribe<Station>() {
+           @Override
+           public void subscribe(ObservableEmitter<Station> e) throws Exception {
+               e.onNext(getStationDetails(stationRepository.findOne(id)));
+               e.onComplete();
+           }
+       }).doOnComplete(()->{
+           log.info("Completed call");
+       }).subscribeOn(Schedulers.io());
+        log.info("Waiting for results");
+       return stationObservable.blockingFirst();
     }
 
     public List<Station> searchStation(StationEntity stationEntity) {
@@ -67,6 +84,7 @@ public class StationService {
         station.setStationName(stationEntity.getStationName());
         station.setCallSign(stationEntity.getCallSign());
         station.setHdEnabled(stationEntity.getHdEnabled());
+        log.info("Returning results stationId={}",station.getStationId());
         return station;
     }
 }

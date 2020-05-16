@@ -6,6 +6,7 @@ import com.station.service.StationService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "${microservice.contextPath}/station", consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
+@Slf4j
 public class StationController {
 
     @Autowired
@@ -122,6 +124,7 @@ public class StationController {
                     Boolean hdEnabled) {
         List<Station> stations = new ArrayList<>();
         if (null != stationId) {
+            log.info("Station Id={}",stationId);
             stations = Arrays.asList(stationService.searchStationById(stationId));
         } else if (null != stationName) {
             StationEntity stationEntity=new StationEntity();
